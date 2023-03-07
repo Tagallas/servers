@@ -1,0 +1,69 @@
+@startuml
+' --------
+
+hide empty members
+
+abstract class Server {
+    + {static} n_max_returned_entries: int
+    + __init__(self, *args, **kwargs)
+    + get_entries(self, n_letters: int): List[Product]
+    + {abstract} get_all_products()
+}
+class ListServer {
+    + __init__(self, products: List[Product], *args, **kwargs)
+    + products: List[Product]
+    + get_all_products(self): List[Product]
+}
+ListServer --|> Server
+
+
+class MapServer {
+    + __init__(self, products: List[Product], *args, **kwargs)
+    + get_all_products(self): List[Product]
+}
+
+
+class Product {
+    + __init__(self, name: str, price: float)
+    + name: str
+    + price: float
+}
+
+Product "*" --* "1" ListServer
+Product "*" --* "1" MapServer
+
+' ListServer "1" *-- "*" Product
+' MapServer "1" *-- "*" Product
+
+
+
+class Client {
+    + __init__(self, server: ServerType)
+    + server: Server
+    + get_total_price(self, n_letters: Optional[int]): float
+}
+Server -o Client
+
+class Exception {
+}
+
+
+class ServerError {
+    +__init__(self, msg:str = None)
+    + msg: str
+}
+
+ServerError --|> Exception
+
+class TooManyProductsFoundError {
+    +__init__(self)
+}
+note right: Reprezentuje wyjątek związany ze znalezieniem zbyt dużej liczby produktów.
+TooManyProductsFoundError --|> ServerError 
+
+
+Server ..> TooManyProductsFoundError : "<< throws >>"
+MapServer --|> Server
+
+' --------
+@enduml
